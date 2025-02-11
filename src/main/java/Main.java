@@ -6,11 +6,15 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
+        
         do {
+            if (input.equals("exit 0"))
+                break;
             System.out.println(input + ": command not found");
             System.out.print("$ ");
             input = scanner.nextLine();
-          } while (!input.matches(""));
+        } while (!input.matches(""));
+        
         scanner.close();
     }
 }
