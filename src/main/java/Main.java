@@ -10,6 +10,10 @@ public class Main {
         do {
             if (input.equals("exit 0"))
                 break;
+
+            if(input.startsWith("echo")) {
+                System.out.println(input.substring(6, input.length()-1));
+            }
             System.out.println(input + ": command not found");
             System.out.print("$ ");
             input = scanner.nextLine();
