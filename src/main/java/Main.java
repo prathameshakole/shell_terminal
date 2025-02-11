@@ -8,12 +8,14 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
         List<String> builtins = builtins();
+
         while (true) {
             System.out.print("$ ");
             String input = scanner.nextLine();
             String[] str = input.split(" ");
             String command = str[0];
             String parameter = "";
+
             if (str.length > 2) {
                 for (int i = 1; i < str.length; i++) {
                     if (i < str.length - 1) {
@@ -25,6 +27,7 @@ public class Main {
             } else if (str.length > 1) {
                 parameter = str[1];
             }
+            
             switch (command) {
                 case "exit":
                     if (parameter.equals("0")) {
@@ -51,7 +54,18 @@ public class Main {
                     }
                     break;
                 default:
-                    System.out.println(input + ": command not found");
+                    if (!parameter.equals("")) {
+                        String path = getPath(command);
+                        if (path != null) {
+                            String[] fullPath = new String[] { command, parameter };
+                            Process process = Runtime.getRuntime().exec(fullPath);
+                            process.getInputStream().transferTo(System.out);
+                        } else {
+                            System.out.println(command + ": command not found");
+                        }
+                    } else {
+                        System.out.println(input + ": command not found");
+                    }
             }
         }
     }
