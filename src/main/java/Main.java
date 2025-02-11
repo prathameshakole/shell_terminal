@@ -1,69 +1,76 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static final String[] BUILTIN_COMMANDS = { "echo", "exit", "type" };
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
-
+        List<String> builtins = builtins();
         while (true) {
             System.out.print("$ ");
-            String input = scanner.nextLine().trim();
-            if (input.equals("exit 0")) {
-                break;
+            String input = scanner.nextLine();
+            String[] str = input.split(" ");
+            String command = str[0];
+            String parameter = "";
+            if (str.length > 2) {
+                for (int i = 1; i < str.length; i++) {
+                    if (i < str.length - 1) {
+                        parameter += str[i] + " ";
+                    } else {
+                        parameter += str[i];
+                    }
+                }
+            } else if (str.length > 1) {
+                parameter = str[1];
             }
-
-            String[] parts = input.split(" ", 2);
-            String command = parts[0];
-            String parameter = (parts.length > 1) ? parts[1] : "";
-
-            if (command.equals("echo")) {
-                System.out.println(parameter);
-            } else if (command.equals("type")) {
-                handleTypeCommand(parameter);
-            } else {
-                System.out.println(command + ": command not found");
+            switch (command) {
+                case "exit":
+                    if (parameter.equals("0")) {
+                        System.exit(0);
+                    } else {
+                        System.out.println(input + ": command not found");
+                    }
+                    break;
+                case "echo":
+                    System.out.println(parameter);
+                    break;
+                case "type":
+                    if (parameter.equals(builtins.get(0)) ||
+                            parameter.equals(builtins.get(1)) ||
+                            parameter.equals(builtins.get(2))) {
+                        System.out.println(parameter + " is a shell builtin");
+                    } else {
+                        String path = getPath(parameter);
+                        if (path != null) {
+                            System.out.println(parameter + " is " + path);
+                        } else {
+                            System.out.println(parameter + ": not found");
+                        }
+                    }
+                    break;
+                default:
+                    System.out.println(input + ": command not found");
             }
         }
-        scanner.close();
     }
 
-    private static void handleTypeCommand(String parameter) {
-        if (parameter.isEmpty()) {
-            System.out.println("type: missing operand");
-            return;
-        }
-
-        // Check if it's a built-in command
-        if (Arrays.asList(BUILTIN_COMMANDS).contains(parameter)) {
-            System.out.println(parameter + " is a shell builtin");
-            return;
-        }
-
-        // Check in PATH for an executable
-        String executablePath = findExecutableInPath(parameter);
-        if (executablePath != null) {
-            System.out.println(parameter + " is " + executablePath);
-        } else {
-            System.out.println(parameter + ": not found");
-        }
-    }
-
-    private static String findExecutableInPath(String command) {
-        String pathEnv = System.getenv("PATH");
-        if (pathEnv == null || pathEnv.isEmpty()) {
-            return null;
-        }
-
-        for (String dir : pathEnv.split(":")) {  // Use ":" for Unix-based systems
-            Path fullPath = Path.of(dir, command);
-            if (Files.exists(fullPath) && Files.isRegularFile(fullPath) && Files.isExecutable(fullPath)) {
+    private static String getPath(String parameter) {
+        for (String path : System.getenv("PATH").split(":")) {
+            Path fullPath = Path.of(path, parameter);
+            if (Files.isRegularFile(fullPath)) {
                 return fullPath.toString();
             }
         }
         return null;
+    }
+
+    private static List<String> builtins() {
+        List<String> builtins = new ArrayList<>();
+        builtins.add("exit");
+        builtins.add("echo");
+        builtins.add("type");
+        return builtins;
     }
 }
