@@ -16,9 +16,9 @@ public class Main {
                 break;
             }
 
-            String[] str = input.split(" ", 2);
-            String command = str[0];
-            String parameter = (str.length > 1) ? str[1] : "";
+            String[] parts = input.split(" ", 2);
+            String command = parts[0];
+            String parameter = (parts.length > 1) ? parts[1] : "";
 
             if (command.equals("echo")) {
                 System.out.println(parameter);
@@ -37,12 +37,13 @@ public class Main {
             return;
         }
 
+        // Check if it's a built-in command
         if (Arrays.asList(BUILTIN_COMMANDS).contains(parameter)) {
             System.out.println(parameter + " is a shell builtin");
             return;
         }
 
-    
+        // Check in PATH for an executable
         String executablePath = findExecutableInPath(parameter);
         if (executablePath != null) {
             System.out.println(parameter + " is " + executablePath);
@@ -57,9 +58,9 @@ public class Main {
             return null;
         }
 
-        for (String dir : pathEnv.split(":")) {  
+        for (String dir : pathEnv.split(":")) {  // Use ":" for Unix-based systems
             Path fullPath = Path.of(dir, command);
-            if (Files.isRegularFile(fullPath) && Files.isExecutable(fullPath)) {
+            if (Files.exists(fullPath) && Files.isRegularFile(fullPath) && Files.isExecutable(fullPath)) {
                 return fullPath.toString();
             }
         }
