@@ -53,6 +53,9 @@ public class Main {
                         }
                     }
                     break;
+                case "pwd":
+                    System.out.println(System.getProperty("user.dir"));
+                    break;
                 default:
                     if (!parameter.equals("")) {
                         String path = getPath(command);
