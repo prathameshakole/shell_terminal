@@ -1,11 +1,13 @@
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
-        List<String> commandList = List.of("exit", "echo", "type", "pwd");
+        List<String> commandList = List.of("cd", "exit", "echo", "type", "pwd");
         String[] command;
         String[] paths = System.getenv("PATH").split(File.pathSeparator);
         while (true) {
@@ -47,6 +49,21 @@ public class Main {
                 case "pwd":
                     System.out.println(System.getProperty("user.dir"));
                     break;
+                case "cd":
+                if (command.length < 2) {
+                    // If no argument is provided, change to the user's home directory
+                    System.setProperty("user.dir", System.getProperty("user.home"));
+                } else {
+                    String newDir = command[1];
+                    Path newPath = Path.of(newDir);
+                    if (Files.isDirectory(newPath)) {
+                        // Change the current working directory
+                        System.setProperty("user.dir", newPath.toAbsolutePath().toString());
+                    } else {
+                        System.out.println("cd: " + newDir + ": No such file or directory");
+                    }
+                }
+                break;
                 default:
                     File file;
                     boolean fileFound = false;
